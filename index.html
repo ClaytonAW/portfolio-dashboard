@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Portfolio Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%233b6ef0'/><text y='.9em' font-size='72' font-family='Inter Tight,Inter,sans-serif' font-weight='700' fill='white' x='50%' text-anchor='middle' dominant-baseline='hanging'>W</text></svg>"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
@@ -151,6 +152,25 @@ tbody tr:hover{background:var(--bg3)}
   .fam-grid{grid-template-columns:1fr}
 }
 @media(min-width:701px){.mob-nav{display:none}}
+
+.veh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:4px}
+.veh-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.veh-icon{font-size:28px;color:var(--accent);margin-bottom:10px}
+.veh-name{font-weight:600;font-size:14px;margin-bottom:2px}
+.veh-meta{font-size:12px;color:var(--text2);margin-bottom:8px}
+.veh-val{font-family:var(--font-tight);font-size:18px;font-weight:700}
+.veh-actions{display:flex;gap:6px;margin-top:10px}
+.news-impact{margin-top:8px;padding:8px 12px;background:var(--bg3);border-radius:var(--radius-xs);font-size:12px;color:var(--text2);line-height:1.5;border-left:3px solid var(--border2)}
+.news-impact.pos-impact{border-left-color:var(--green);background:var(--green-bg)}
+.news-impact.neg-impact{border-left-color:var(--red);background:var(--red-bg)}
+.news-impact.neu-impact{border-left-color:var(--accent);background:var(--accent-bg)}
+.news-impact-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:3px}
+.news-source{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--accent);text-decoration:none;margin-top:6px;padding:2px 0}
+.news-source:hover{text-decoration:underline}
+.news-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+.news-title-link{font-size:13px;font-weight:600;color:var(--text);text-decoration:none;line-height:1.4}
+.news-title-link:hover{color:var(--accent)}
+
 </style>
 </head>
 <body>
@@ -307,6 +327,13 @@ tbody tr:hover{background:var(--bg3)}
         <div class="card"><div class="card-title">Crypto</div><table><thead><tr><th>Asset</th><th>Amount</th><th>GBP value</th><th></th></tr></thead><tbody id="crypto-tbody"><tr class="empty-row"><td colspan="4">None added.</td></tr></tbody></table></div>
         <div class="card"><div class="card-title">Property</div><table><thead><tr><th>Description</th><th>GBP value</th><th></th></tr></thead><tbody id="prop-tbody"><tr class="empty-row"><td colspan="3">None added.</td></tr></tbody></table></div>
       </div>
+      <div class="card" style="margin-top:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div class="card-title" style="margin-bottom:0"><i class="fa-solid fa-car" style="margin-right:6px"></i>Vehicles</div>
+          <button class="btn btn-ghost btn-sm" onclick="openVehicleModal(-1)"><i class="fa-solid fa-plus"></i> Add vehicle</button>
+        </div>
+        <div id="veh-grid" class="veh-grid"><div style="color:var(--text3);font-size:13px;grid-column:1/-1;padding:8px 0">No vehicles added yet.</div></div>
+      </div>
     </div>
 
     <div id="tab-advisor" class="section">
@@ -445,6 +472,19 @@ tbody tr:hover{background:var(--bg3)}
   </div>
 </div>
 
+<div class="overlay" id="veh-modal">
+  <div class="modal">
+    <h3 id="veh-modal-title">Add vehicle</h3>
+    <input type="hidden" id="veh-idx" value="-1"/>
+    <div class="form-row"><label>Make & model</label><input type="text" id="veh-name" placeholder="e.g. Toyota Fortuner"/></div>
+    <div class="form-row"><label>Year</label><input type="number" id="veh-year" placeholder="2022" min="1900" max="2030"/></div>
+    <div class="form-row"><label>Type</label><select id="veh-type"><option>Car</option><option>Motorcycle</option><option>Truck</option><option>Boat</option><option>Other</option></select></div>
+    <div class="form-row"><label>Estimated value (GBP)</label><input type="number" id="veh-val" placeholder="15000" step="any"/></div>
+    <div class="form-row"><label>Notes (optional)</label><input type="text" id="veh-notes" placeholder="e.g. Paid off, insured till Dec 2025"/></div>
+    <div class="form-footer"><button class="btn btn-ghost" onclick="closeModals()">Cancel</button><button class="btn btn-primary" onclick="submitVehicle()" id="veh-submit">Add vehicle</button></div>
+  </div>
+</div>
+
 <div class="overlay" id="asset-modal">
   <div class="modal">
     <h3>Add asset</h3>
@@ -476,7 +516,7 @@ const PIE=['#3b6ef0','#18a76a','#c98a0a','#6d4df0','#0fa89e','#e04444','#e07830'
 const TCOL={ETF:'#3b6ef0',Stock:'#18a76a',Bond:'#6d4df0',Other:'#9498b0'};
 let FX={GBP:1,USD:1.27,IDR:20500,EUR:1.17};
 let curAcct='personal';
-let S={personal:{holdings:[],cash:[],crypto:[],property:[],goal:{withdrawal:60000,swr:4,monthly:1000,rate:8}},wife:{holdings:[],cash:[],crypto:[],property:[]}};
+let S={personal:{holdings:[],cash:[],crypto:[],property:[],vehicles:[],goal:{withdrawal:60000,swr:4,monthly:1000,rate:8}},wife:{holdings:[],cash:[],crypto:[],property:[],vehicles:[]}};
 let CH={};
 let advHistory=[];
 let pinBuf='';let setupFirst='';let setupStep='';
@@ -550,7 +590,7 @@ function showApp(){
 
 function saveState(){localStorage.setItem(STORE,JSON.stringify(S));}
 function loadState(){
-  try{const raw=localStorage.getItem(STORE);if(raw){const p=JSON.parse(raw);if(p.personal)S.personal={...S.personal,...p.personal,goal:{...S.personal.goal,...(p.personal.goal||{})}};if(p.wife)S.wife={...S.wife,...p.wife};}}catch(e){}
+  try{const raw=localStorage.getItem(STORE);if(raw){const p=JSON.parse(raw);if(p.personal)S.personal={...S.personal,...p.personal,vehicles:p.personal.vehicles||[],goal:{...S.personal.goal,...(p.personal.goal||{})}};if(p.wife)S.wife={...S.wife,...p.wife,vehicles:p.wife.vehicles||[]};}}catch(e){}
 }
 
 async function callAI(prompt,search=true,sys=''){
@@ -603,11 +643,12 @@ function totals(acct='personal'){
   const cash=(s.cash||[]).reduce((x,c)=>x+toGBP(c.balance,c.currency),0);
   const crypto=(s.crypto||[]).reduce((x,c)=>x+c.valGBP,0);
   const prop=(s.property||[]).reduce((x,p)=>x+p.valGBP,0);
-  const gain=port-cost,pct=cost>0?gain/cost*100:0,net=port+cash+crypto+prop;
+  const veh=(s.vehicles||[]).reduce((x,v)=>x+v.valGBP,0);
+  const gain=port-cost,pct=cost>0?gain/cost*100:0,net=port+cash+crypto+prop+veh;
   return{port,cost,cash,crypto,prop,gain,pct,net};
 }
 
-function refreshAll(){refreshDash();refreshHoldings();refreshCash();refreshCrypto();refreshProp();}
+function refreshAll(){refreshDash();refreshHoldings();refreshCash();refreshCrypto();refreshProp();refreshVehicles();}
 
 function refreshDash(){
   const t=totals('personal');
@@ -668,6 +709,51 @@ function refreshProp(){
   if(!S.personal.property.length){tb.innerHTML='<tr class="empty-row"><td colspan="3">None added.</td></tr>';return;}
   tb.innerHTML=S.personal.property.map((p,i)=>`<tr><td>${p.desc}</td><td>${fmt(p.valGBP)}</td><td><button class="btn-icon" onclick="rmProp(${i})" style="color:var(--red)"><i class="fa-solid fa-trash" style="font-size:11px"></i></button></td></tr>`).join('');
 }
+
+
+function refreshVehicles(){
+  const grid=document.getElementById('veh-grid');
+  const vehs=S.personal.vehicles||[];
+  if(!vehs.length){grid.innerHTML='<div style="color:var(--text3);font-size:13px;grid-column:1/-1;padding:8px 0">No vehicles added yet.</div>';return;}
+  const icons={Car:'fa-car',Motorcycle:'fa-motorcycle',Truck:'fa-truck',Boat:'fa-sailboat',Other:'fa-car'};
+  grid.innerHTML=vehs.map((v,i)=>`<div class="veh-card">
+    <div class="veh-icon"><i class="fa-solid ${icons[v.type]||'fa-car'}"></i></div>
+    <div class="veh-name">${v.name}</div>
+    <div class="veh-meta">${v.year} · ${v.type}${v.notes?' · '+v.notes:''}</div>
+    <div class="veh-val">${fmt(v.valGBP)}</div>
+    <div class="veh-actions">
+      <button class="btn-icon" onclick="openVehicleModal(${i})"><i class="fa-solid fa-pen" style="font-size:11px"></i></button>
+      <button class="btn-icon" onclick="rmVehicle(${i})" style="color:var(--red)"><i class="fa-solid fa-trash" style="font-size:11px"></i></button>
+    </div>
+  </div>`).join('');
+}
+
+function openVehicleModal(idx){
+  document.getElementById('veh-idx').value=idx;
+  const isEdit=idx>=0;
+  document.getElementById('veh-modal-title').textContent=isEdit?'Edit vehicle':'Add vehicle';
+  document.getElementById('veh-submit').textContent=isEdit?'Save changes':'Add vehicle';
+  if(isEdit){const v=S.personal.vehicles[idx];document.getElementById('veh-name').value=v.name;document.getElementById('veh-year').value=v.year;document.getElementById('veh-type').value=v.type;document.getElementById('veh-val').value=v.valGBP;document.getElementById('veh-notes').value=v.notes||'';}
+  else{['veh-name','veh-year','veh-val','veh-notes'].forEach(id=>document.getElementById(id).value='');document.getElementById('veh-type').value='Car';}
+  document.getElementById('veh-modal').classList.add('open');
+}
+
+function submitVehicle(){
+  const idx=parseInt(document.getElementById('veh-idx').value);
+  const name=document.getElementById('veh-name').value.trim();
+  const year=document.getElementById('veh-year').value;
+  const type=document.getElementById('veh-type').value;
+  const valGBP=parseFloat(document.getElementById('veh-val').value)||0;
+  const notes=document.getElementById('veh-notes').value.trim();
+  if(!name){toast('Enter make & model','error');return;}
+  if(!S.personal.vehicles)S.personal.vehicles=[];
+  const v={name,year,type,valGBP,notes};
+  if(idx>=0)S.personal.vehicles[idx]=v;else S.personal.vehicles.push(v);
+  closeModals();saveState();refreshVehicles();refreshDash();
+  toast(name+(idx>=0?' updated':' added'),'success');
+}
+
+function rmVehicle(i){S.personal.vehicles.splice(i,1);saveState();refreshVehicles();refreshDash();}
 
 function refreshFamily(){
   const pt=totals('personal'),wt=totals('wife');
@@ -768,13 +854,49 @@ async function lookupPrice(){
 }
 
 async function loadNews(){
-  const el=document.getElementById('news-card');el.innerHTML='<div style="text-align:center;padding:32px;color:var(--text3)"><i class="fa-solid fa-spinner fa-spin" style="font-size:20px"></i></div>';
+  const el=document.getElementById('news-card');
+  el.innerHTML='<div style="text-align:center;padding:32px;color:var(--text3)"><i class="fa-solid fa-spinner fa-spin" style="font-size:20px"></i><div style="margin-top:10px;font-size:13px">Fetching news & analysing impact on your holdings...</div></div>';
   const tickers=S.personal.holdings.length?S.personal.holdings.map(h=>h.ticker).join(', '):'global ETF and stock markets';
   try{
-    const t=await callAI(`Today's financial news. 5 items relevant to investor holding ${tickers}. Each line: TITLE|TAG|SUMMARY (TAG=MARKET or HOLDING, 1-2 sentence summary). Only 5 lines.`);
-    const items=t.trim().split('\n').filter(l=>l.includes('|')).slice(0,5);
-    if(!items.length){el.innerHTML='<div style="padding:24px;text-align:center;color:var(--text3)">No news found.</div>';return;}
-    el.innerHTML=items.map(item=>{const[title,tag,summary]=item.split('|');const cls=(tag||'').trim()==='HOLDING'?'tag-holding':'tag-market';return `<div class="news-item"><span class="news-tag ${cls}">${(tag||'MARKET').trim()}</span><span class="news-title">${(title||'').trim()}</span><div class="news-body">${(summary||'').trim()}</div></div>`;}).join('');
+    const t=await callAI(`You are a financial news analyst. Search for today's top 5 financial news stories relevant to an investor holding ${tickers}.
+
+For each story return EXACTLY this pipe-delimited format on one line:
+TITLE|TAG|SUMMARY|IMPACT_RATING|IMPACT_EXPLANATION|URL
+
+Where:
+- TAG = MARKET or HOLDING
+- SUMMARY = 1-2 sentence news summary
+- IMPACT_RATING = POSITIVE, NEGATIVE, or NEUTRAL (effect on a long-term ETF/stock investor)
+- IMPACT_EXPLANATION = 1 sentence explaining predicted impact on the investor's holdings
+- URL = the direct URL to the source article (real URL, no placeholders)
+
+Return exactly 5 lines, nothing else.`);
+    const items=t.trim().split('\n').filter(l=>l.split('|').length>=5).slice(0,5);
+    if(!items.length){el.innerHTML='<div style="padding:24px;text-align:center;color:var(--text3)">No news found. Try refreshing.</div>';return;}
+    el.innerHTML=items.map(item=>{
+      const parts=item.split('|');
+      const title=(parts[0]||'').trim();
+      const tag=(parts[1]||'MARKET').trim();
+      const summary=(parts[2]||'').trim();
+      const impact=(parts[3]||'NEUTRAL').trim().toUpperCase();
+      const impactText=(parts[4]||'').trim();
+      const url=(parts[5]||'').trim();
+      const tagCls=tag==='HOLDING'?'tag-holding':'tag-market';
+      const impactCls=impact==='POSITIVE'?'pos-impact':impact==='NEGATIVE'?'neg-impact':'neu-impact';
+      const impactIcon=impact==='POSITIVE'?'fa-arrow-trend-up':impact==='NEGATIVE'?'fa-arrow-trend-down':'fa-minus';
+      const impactColor=impact==='POSITIVE'?'var(--green)':impact==='NEGATIVE'?'var(--red)':'var(--accent)';
+      const titleEl=url&&url.startsWith('http')?`<a href="${url}" target="_blank" rel="noopener" class="news-title-link">${title} <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px;opacity:0.6"></i></a>`:`<span class="news-title">${title}</span>`;
+      const sourceEl=url&&url.startsWith('http')?`<a href="${url}" target="_blank" rel="noopener" class="news-source"><i class="fa-solid fa-link" style="font-size:10px"></i> Read full article</a>`:'';
+      return \`<div class="news-item">
+        <div class="news-header">
+          <span class="news-tag \${tagCls}">\${tag}</span>
+        </div>
+        \${titleEl}
+        <div class="news-body" style="margin-top:6px">\${summary}</div>
+        \${impactText?'<div class="news-impact '+impactCls+'"><div class="news-impact-label"><i class="fa-solid '+impactIcon+'" style="color:'+impactColor+';margin-right:4px"></i>Predicted impact on your holdings</div>'+impactText+'</div>':''}
+        \${sourceEl}
+      </div>\`;
+    }).join('');
   }catch(e){el.innerHTML='<div style="padding:24px;color:var(--red);text-align:center">Could not load. Check API key.</div>';}
 }
 
