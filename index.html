@@ -183,7 +183,7 @@ tbody tr:hover{background:var(--bg3)}
     <div class="pin-dots"><div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div><div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div></div>
     <div class="numpad" id="numpad"></div>
     <div class="pin-error" id="pin-error"></div>
-    <p style="margin-top:16px;font-size:12px;color:var(--text3)">Forgot passcode? <a href="#" onclick="resetPasscode(event)" style="color:var(--accent)">Reset</a></p>
+
   </div>
 </div>
 
@@ -570,7 +570,7 @@ function selAcct(a){curAcct=a;['personal','family'].forEach(x=>document.getEleme
 function enterApp(){showApp();}
 function lockApp(){showScreen('lock-screen');initAuth();}
 function changePasscode(){localStorage.removeItem('app-pc');startSetup();}
-function resetPasscode(e){e.preventDefault();if(confirm('Reset passcode?')){localStorage.removeItem('app-pc');startSetup();}}
+
 
 function showScreen(id){
   ['lock-screen','setup-passcode','setup-api','setup-account','main-app'].forEach(s=>{
@@ -887,15 +887,13 @@ Return exactly 5 lines, nothing else.`);
       const impactColor=impact==='POSITIVE'?'var(--green)':impact==='NEGATIVE'?'var(--red)':'var(--accent)';
       const titleEl=url&&url.startsWith('http')?`<a href="${url}" target="_blank" rel="noopener" class="news-title-link">${title} <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px;opacity:0.6"></i></a>`:`<span class="news-title">${title}</span>`;
       const sourceEl=url&&url.startsWith('http')?`<a href="${url}" target="_blank" rel="noopener" class="news-source"><i class="fa-solid fa-link" style="font-size:10px"></i> Read full article</a>`:'';
-      return \`<div class="news-item">
-        <div class="news-header">
-          <span class="news-tag \${tagCls}">\${tag}</span>
-        </div>
-        \${titleEl}
-        <div class="news-body" style="margin-top:6px">\${summary}</div>
-        \${impactText?'<div class="news-impact '+impactCls+'"><div class="news-impact-label"><i class="fa-solid '+impactIcon+'" style="color:'+impactColor+';margin-right:4px"></i>Predicted impact on your holdings</div>'+impactText+'</div>':''}
-        \${sourceEl}
-      </div>\`;
+      return '<div class="news-item">'
+        +'<div class="news-header"><span class="news-tag '+tagCls+'">'+tag+'</span></div>'
+        +titleEl
+        +'<div class="news-body" style="margin-top:6px">'+summary+'</div>'
+        +(impactText?'<div class="news-impact '+impactCls+'"><div class="news-impact-label"><i class="fa-solid '+impactIcon+'" style="color:'+impactColor+';margin-right:4px"></i>Predicted impact on your holdings</div>'+impactText+'</div>':'')
+        +sourceEl
+        +'</div>';
     }).join('');
   }catch(e){el.innerHTML='<div style="padding:24px;color:var(--red);text-align:center">Could not load. Check API key.</div>';}
 }
